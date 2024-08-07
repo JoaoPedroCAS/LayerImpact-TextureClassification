@@ -1,0 +1,154 @@
+Camadas removidas: 0
+Average Accuracy: 0.8395
+Average F1-Score: 0.8410
+Average Recall: 0.8395
+Average Precision: 0.8601Camadas removidas: 1
+Average Accuracy: 0.8575
+Average F1-Score: 0.8574
+Average Recall: 0.8575
+Average Precision: 0.8676
+
+Camadas removidas: 2
+Average Accuracy: 0.8535
+Average F1-Score: 0.8536
+Average Recall: 0.8535
+Average Precision: 0.8630
+
+Camadas removidas: 3
+Average Accuracy: 0.8575
+Average F1-Score: 0.8575
+Average Recall: 0.8575
+Average Precision: 0.8661
+
+Camadas removidas: 4
+Average Accuracy: 0.8255
+Average F1-Score: 0.8258
+Average Recall: 0.8255
+Average Precision: 0.8347
+
+Camadas removidas: 5
+Average Accuracy: 0.8255
+Average F1-Score: 0.8265
+Average Recall: 0.8255
+Average Precision: 0.8363
+
+Camadas removidas: 6
+Average Accuracy: 0.8195
+Average F1-Score: 0.8208
+Average Recall: 0.8195
+Average Precision: 0.8324
+
+Camadas removidas: 7
+Average Accuracy: 0.8015
+Average F1-Score: 0.8022
+Average Recall: 0.8015
+Average Precision: 0.8133
+
+Camadas removidas: 8
+Average Accuracy: 0.7575
+Average F1-Score: 0.7578
+Average Recall: 0.7575
+Average Precision: 0.7678
+
+Camadas removidas: 9
+Average Accuracy: 0.7490
+Average F1-Score: 0.7497
+Average Recall: 0.7490
+Average Precision: 0.7611
+
+Camadas removidas: 10
+Average Accuracy: 0.7265
+Average F1-Score: 0.7269
+Average Recall: 0.7265
+Average Precision: 0.7387
+
+Camadas removidas: 11
+Average Accuracy: 0.7245
+Average F1-Score: 0.7247
+Average Recall: 0.7245
+Average Precision: 0.7357
+
+Camadas removidas: 12
+Average Accuracy: 0.6915
+Average F1-Score: 0.6913
+Average Recall: 0.6915
+Average Precision: 0.7038
+
+Camadas removidas: 13
+Average Accuracy: 0.6450
+Average F1-Score: 0.6435
+Average Recall: 0.6450
+Average Precision: 0.6563
+
+Camadas removidas: 14
+Average Accuracy: 0.6290
+Average F1-Score: 0.6282
+Average Recall: 0.6290
+Average Precision: 0.6402
+
+Camadas removidas: 15
+Average Accuracy: 0.6130
+Average F1-Score: 0.6106
+Average Recall: 0.6130
+Average Precision: 0.6202
+
+Camadas removidas: 16
+Average Accuracy: 0.6140
+Average F1-Score: 0.6114
+Average Recall: 0.6140
+Average Precision: 0.6215
+
+Camadas removidas: 17
+Average Accuracy: 0.5735
+Average F1-Score: 0.5706
+Average Recall: 0.5735
+Average Precision: 0.5823
+
+Camadas removidas: 18
+Average Accuracy: 0.5555
+Average F1-Score: 0.5482
+Average Recall: 0.5555
+Average Precision: 0.5549
+
+Camadas removidas: 19
+Average Accuracy: 0.5130
+Average F1-Score: 0.5074
+Average Recall: 0.5130
+Average Precision: 0.5154
+
+Camadas removidas: 20
+Average Accuracy: 0.4970
+Average F1-Score: 0.4911
+Average Recall: 0.4970
+Average Precision: 0.4991
+
+Camadas removidas: 21
+Average Accuracy: 0.4990
+Average F1-Score: 0.4933
+Average Recall: 0.4990
+Average Precision: 0.5051
+
+Camadas removidas: 22
+Average Accuracy: 0.4555
+Average F1-Score: 0.4531
+Average Recall: 0.4555
+Average Precision: 0.4706
+
+Camadas removidas: 23
+Average Accuracy: 0.1125
+Average F1-Score: 0.1036
+Average Recall: 0.1125
+Average Precision: 0.1055
+
+Camadas removidas: 24
+Average Accuracy: 0.1000
+Average F1-Score: 0.0932
+Average Recall: 0.1000
+Average Precision: 0.0958
+
+Camadas removidas: 25
+Average Accuracy: 0.1890
+Average F1-Score: 0.1819
+Average Recall: 0.1890
+Average Precision: 0.2386
+
