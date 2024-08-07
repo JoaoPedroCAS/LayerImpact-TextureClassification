@@ -115,12 +115,12 @@ while blocos > 0 or model.number_of_sequentials() > 0:
 
             # Predict and evaluate the model
             y_pred = lda.predict(X_test)
-            report = classification_report(y_test, y_pred, output_dict=True)
+            report = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
 
             accuracy = accuracy_score(y_test, y_pred)
-            f1 = np.mean([report[str(i)]['f1-score'] for i in range(len(np.unique(labels)))])
-            recall = np.mean([report[str(i)]['recall'] for i in range(len(np.unique(labels)))])
-            precision = np.mean([report[str(i)]['precision'] for i in range(len(np.unique(labels)))])
+            f1 = np.mean([report[str(i)]['f1-score'] for i in range(len(np.unique(labels))) if str(i) in report])
+            recall = np.mean([report[str(i)]['recall'] for i in range(len(np.unique(labels))) if str(i) in report])
+            precision = np.mean([report[str(i)]['precision'] for i in range(len(np.unique(labels))) if str(i) in report])
 
             accuracy_scores.append(accuracy)
             f1_scores.append(f1)
