@@ -7,17 +7,17 @@ from sklearn.model_selection import RepeatedStratifiedKFold
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
-from torchvision.models import convnext_tiny, ConvNeXt_Tiny_Weights
+from torchvision.models import convnext_base, ConvNeXt_Base_Weights
 import matplotlib.pyplot as plt
 
 # Define the path to your dataset
 dataset_path = 'C:/Users/jpedr/OneDrive/Documentos/IFSC/Texturas'
 
 # Load ConvNeXt-Tiny model and remove the classification layer
-class ConvNeXtTinyFeatureExtractor(nn.Module):
+class ConvNeXtBaseFeatureExtractor(nn.Module):
     def __init__(self):
-        super(ConvNeXtTinyFeatureExtractor, self).__init__()
-        self.model = convnext_tiny(weights=ConvNeXt_Tiny_Weights.IMAGENET1K_V1)
+        super(ConvNeXtBaseFeatureExtractor, self).__init__()
+        self.model = convnext_base(weights=ConvNeXt_Base_Weights.IMAGENET1K_V1)
         self.features = nn.Sequential(*list(self.model.children())[:-2])  # Remove classification layer
 
     def forward(self, x):
@@ -76,7 +76,7 @@ images_tensor = torch.stack(images)
 
 # Extract features using ConvNeXt-Tiny
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = ConvNeXtTinyFeatureExtractor().to(device)
+model = ConvNeXtBaseFeatureExtractor().to(device)
 blocks = model.number_of_blocks()
 layers_removed = 0
 mean_accuracy_scores = []
