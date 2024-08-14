@@ -7,32 +7,45 @@ from sklearn.model_selection import RepeatedStratifiedKFold
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
-from torchvision.models import resnet50, ResNet50_Weights
+from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
 import matplotlib.pyplot as plt
 
 # Define the path to your dataset
 dataset_path = 'C:/Users/jpedr/OneDrive/Documentos/IFSC/Texturas'
 
-# Load ResNet-50 model and remove the classification layer
-class ResNet50FeatureExtractor(nn.Module):
+# Load EfficientNet-B0 model and remove the classification layer
+class EfficientNetB0FeatureExtraction(nn.Module):
     def __init__(self):
-        super(ResNet50FeatureExtractor, self).__init__()
-        self.model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
+        super(EfficientNetB0FeatureExtraction, self).__init__()
+        self.model = efficientnet_b0(weights=EfficientNet_B0_Weights.IMAGENET1K_V1)
         self.features = nn.Sequential(*list(self.model.children())[:-2])  # Remove classification layer
-
-    def forward(self, x):
-        return self.features(x).squeeze()  # Remove unnecessary dimensions
     
-    def remove_layer(self):
-        # Remove the last layer of the ResNet (typically part of the last ResNet block)
-        if len(self.features) > 0:
-            layers = list(self.features.children())
-            layers.pop()
-            self.features = nn.Sequential(*layers)
+    def forward(self, x):
+        return self.features(x)
+    
+    def number_of_blocks(self):
+        try:
+            if len(list(self.features[-1][-1].children())) > 0:
+                return len(list(self.features[-1][-1]))
+            else:
+                return 0
+        except IndexError:
+            return 0
+    
+    def remove_blocks(self):
+        if self.number_of_blocks() > 0:
+            blocks = list(self.features[-1][-1].children())
+            blocks.pop()
+            self.features[-1][-1] = nn.Sequential(*blocks)
 
-    def number_of_layers(self):
-        # Return the number of layers left in the model
-        return len(list(self.features.children()))
+    def number_of_sequentials(self):
+        return len(list(self.features[-1]))
+    
+    def remove_sequential(self):
+        if self.number_of_sequentials() > 0:
+            sequential = list(self.features[-1].children())
+            sequential.pop()
+            self.features[-1] = nn.Sequential(*sequential)
 
 # Define transformations for image preprocessing
 transform = transforms.Compose([
@@ -64,17 +77,18 @@ images, labels = load_images_from_folder(dataset_path)
 # Convert list of tensors to a single tensor
 images_tensor = torch.stack(images)
 
-# Extract features using ResNet-50
+# Extract features using EfficientNet-B0
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = ResNet50FeatureExtractor().to(device)
-num_layers = model.number_of_layers()
-camadas_removidas = 0
+model = EfficientNetB0FeatureExtraction().to(device)
+sequential = model.number_of_sequentials()
+blocks = model.number_of_blocks()
+layers_removed = 0
 mean_accuracy_scores = []
 mean_f1_scores = []
 mean_recall_scores = []
 mean_precision_scores = []
 
-while num_layers > 0:
+while blocks > 0 and sequential > 0:
     model.eval()
 
     features = []
@@ -119,8 +133,8 @@ while num_layers > 0:
             precision_scores.append(precision)
 
         # Write average metrics
-        print(f"Camadas removidas: {camadas_removidas}\n")
-        f.write(f"Camadas removidas: {camadas_removidas}\n")
+        print(f"Camadas removidas: {layers_removed}\n")
+        f.write(f"Camadas removidas: {layers_removed}\n")
         f.write(f"Average Accuracy: {np.mean(accuracy_scores):.4f}\n")
         f.write(f"Average F1-Score: {np.mean(f1_scores):.4f}\n")
         f.write(f"Average Recall: {np.mean(recall_scores):.4f}\n")
@@ -131,9 +145,17 @@ while num_layers > 0:
         mean_recall_scores.append(np.mean(recall_scores))
         mean_precision_scores.append(np.mean(precision_scores))
 
-    camadas_removidas += 1
-    model.remove_layer()
-    num_layers = model.number_of_layers()
+    layers_removed += 1
+    model.remove_blocks()
+    blocks = model.number_of_blocks()
+    if blocks == 0:
+        if sequential > 0:
+            print(f"Removendo o {sequential} Sequential\n")
+            model.remove_sequential()
+            blocks = model.number_of_blocks()
+            sequential = model.number_of_sequentials()
+        if model.number_of_sequentials() == 0:
+            break
 
 # Plotting the metrics
 metrics = ['Accuracy', 'F1-Score', 'Recall', 'Precision']
