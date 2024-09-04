@@ -152,7 +152,7 @@ while blocks > 0 or model.number_of_sequentials() > 0:
 
 # Plotting the metrics
 metrics = ['Accuracy', 'F1-Score', 'Recall', 'Precision']
-scores = [mean_accuracy_scores, mean_f1_scores, mean_recall_scores, mean_precision_scores]
+scores = [mean_accuracy_scores[::-1], mean_f1_scores[::-1], mean_recall_scores[::-1], mean_precision_scores[::-1]]
 
 num_metrics = len(metrics)
 

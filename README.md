@@ -24,7 +24,7 @@ O projeto testa as seguintes arquiteturas de redes neurais:
 
 - `Códigos/`: Contém os códigos para cada rede neural.
 - `Resultados/`: Resultados das análises e experimentos.
-- `Texturas/`: Pasta que contém o dataset de texturas, no caso o dataset utilizado foi o Flickr Material Dataset [FMD](http://people.csail.mit.edu/celiu/CVPR2010/FMD/FMD.zip).
+- `Texturas/`: Pasta que contém o dataset de texturas, no caso os datasets utilizados foram o Flickr Material Dataset [FMD](http://people.csail.mit.edu/celiu/CVPR2010/FMD/FMD.zip) e o [1200tex](http://scg-turing.ifsc.usp.br/data/bases/LeavesTex1200.zip).
   
 ## Requisitos
 

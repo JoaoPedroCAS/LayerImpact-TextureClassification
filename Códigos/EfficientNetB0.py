@@ -110,7 +110,7 @@ while blocks > 0 and sequential > 0:
     precision_scores = []
 
     # File to save metrics
-    with open('metrics.txt', 'a') as f:  # Change 'w' to 'a' to append to the file
+    with open('EfficientNetB0.txt', 'a') as f:  # Change 'w' to 'a' to append to the file
         for train_index, test_index in cv.split(features, labels):
             X_train, X_test = features[train_index], features[test_index]
             y_train, y_test = labels[train_index], labels[test_index]
@@ -159,7 +159,7 @@ while blocks > 0 and sequential > 0:
 
 # Plotting the metrics
 metrics = ['Accuracy', 'F1-Score', 'Recall', 'Precision']
-scores = [mean_accuracy_scores, mean_f1_scores, mean_recall_scores, mean_precision_scores]
+scores = [mean_accuracy_scores[::-1], mean_f1_scores[::-1], mean_recall_scores[::-1], mean_precision_scores[::-1]]
 
 num_metrics = len(metrics)
 
