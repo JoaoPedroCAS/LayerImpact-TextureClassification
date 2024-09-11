@@ -11,9 +11,6 @@ from torchvision.models import convnext_tiny, ConvNeXt_Tiny_Weights
 import matplotlib.pyplot as plt
 import random
 import time
-# Define the path to your dataset
-dataset_path = 'C:/Users/jpedr/OneDrive/Documentos/IFSC/Texturas'
-
 # Load ConvNeXt-Tiny model and remove the classification layer
 class ConvNeXtTinyFeatureExtractor(nn.Module):
     def __init__(self):
@@ -48,24 +45,25 @@ class ConvNeXtTinyFeatureExtractor(nn.Module):
         plt.savefig(filename)
         plt.close()  # Close the plot to avoid displaying it
 
-    def initialize_weights_more_randomly(self, noise_std_range=(0.1, 0.5)):
+    def setLimits(self):
         a_std_range = (-5.0, 5.0)
         b_std_range = (-5.0, 5.0)
         random.seed(int(time.time()))
-        
+        a = random.uniform(*a_std_range)
+        b = random.uniform(*b_std_range)
+        a, b = min(a, b), max(a, b)
+        return a, b
+
+    def initialize_weights_more_randomly(self, noise_std_range=(0.1, 0.5)):
         for module in self.model.modules():
             if isinstance(module, (nn.Conv2d, nn.Linear)):
                 # Ensure a <= b for uniform initialization
-                a = random.uniform(*a_std_range)
-                b = random.uniform(*b_std_range)
-                a, b = min(a, b), max(a, b)
+                a, b = self.setLimits()
                 
                 # Use Uniform distribution for weights
                 nn.init.uniform_(module.weight, a=a, b=b)  # Wider range of weights
                 if module.bias is not None:
-                    a = random.uniform(*a_std_range)
-                    b = random.uniform(*b_std_range)
-                    a, b = min(a, b), max(a, b)
+                    a, b = self.setLimits()
                     nn.init.uniform_(module.bias, a=a, b=b)
                 
                 # Optionally, add noise to the weights to increase randomness
@@ -74,13 +72,9 @@ class ConvNeXtTinyFeatureExtractor(nn.Module):
                     if module.bias is not None:
                         module.bias.add_(torch.randn_like(module.bias) * random.uniform(*noise_std_range))
             elif isinstance(module, nn.BatchNorm2d):
-                a = random.uniform(*a_std_range)
-                b = random.uniform(*b_std_range)
-                a, b = min(a, b), max(a, b)
+                a, b = self.setLimits()
                 nn.init.uniform_(module.weight, a=a, b=b)  # Slight randomness in BatchNorm
-                a = random.uniform(*a_std_range)
-                b = random.uniform(*b_std_range)
-                a, b = min(a, b), max(a, b)
+                a, b = self.setLimits()
                 nn.init.uniform_(module.bias, a=a, b=b)
         print("Pesos aleatórios atribuidos!")
 
@@ -110,6 +104,19 @@ class ConvNeXtTinyFeatureExtractor(nn.Module):
             self.features[-1] = torch.nn.Sequential(*sequential)
 
 # Define transformations for image preprocessing
+
+env = int(input("Qual ambiente você está utilizando? (1 - Windowns / 2 - Linux)"))
+if env == 1:
+    dataset_path = 'C:/Users/jpedr/OneDrive/Documentos/IFSC/Texturas'
+    save_results = 'C:/Users/jpedr/OneDrive/Documentos/IFSC/ConvNextTinyRandWeights'
+else:
+    dataset_path = '~/Projetos/LayerImpact-TextureClassification/Texturas'
+    save_results = '~/Projetos/LayerImpact-TextureClassification/ConvNextTinyRandWeights'
+if not os.path.exists(dataset_path):
+        os.makedirs(dataset_path)
+if not os.path.exists(save_results):
+        os.makedirs(save_results)
+
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
@@ -148,7 +155,7 @@ print("Dispositivo selecionado!")
 for i in range(0, 100):
     model = ConvNeXtTinyFeatureExtractor().to(device)
     print(f"Modelo {i} criado")
-    model.save_weights_as_png(filename = f"C:\\Users\\jpedr\\OneDrive\\Documentos\\IFSC\\ConvNextTinyRandWeights\\{i}_weights_per_layer.png")
+    model.save_weights_as_png(filename = f"{save_results}/{i}_weights_per_layer.png")
     print(f"Distribuição {i} de pesos salva!")
     blocks = model.number_of_blocks()
     layers_removed = 0
@@ -179,7 +186,7 @@ for i in range(0, 100):
         precision_scores = []
         print("Inicializando o LDA com CV")
         # File to save metrics
-        with open(f'C:\\Users\\jpedr\\OneDrive\\Documentos\\IFSC\\ConvNextTinyRandWeights\\{i}_metrics.txt', 'a') as f:  # Change 'w' to 'a' to append to the file
+        with open(f'{save_results}/{i}_metrics.txt', 'a') as f:  # Change 'w' to 'a' to append to the file
             for train_index, test_index in cv.split(features, labels):
                 X_train, X_test = features[train_index], features[test_index]
                 y_train, y_test = labels[train_index], labels[test_index]
@@ -244,6 +251,6 @@ for i in range(0, 100):
             ax.set_xlabel('Camadas Removidas')
 
     # Ajusta o layout para que os subplots não se sobreponham
-    plt.savefig(f"C:\\Users\\jpedr\\OneDrive\\Documentos\\IFSC\\ConvNextTinyRandWeights\\{i}_GraficoMetricas.png")
+    plt.savefig(f"{save_results}{i}_GraficoMetricas.png")
     plt.close()  # Close the plot to avoid displaying it
     print("Gráfico de métricas {i} salvo!")
