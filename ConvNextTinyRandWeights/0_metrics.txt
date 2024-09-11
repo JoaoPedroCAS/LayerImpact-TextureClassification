@@ -118,3 +118,27 @@ Average F1-Score: 0.4038
 Average Recall: 0.4179
 Average Precision: 0.4253
 
+Camadas removidas: 20
+Average Accuracy: 0.4079
+Average F1-Score: 0.3906
+Average Recall: 0.4079
+Average Precision: 0.4124
+
+Camadas removidas: 21
+Average Accuracy: 0.4079
+Average F1-Score: 0.3906
+Average Recall: 0.4079
+Average Precision: 0.4123
+
+Camadas removidas: 22
+Average Accuracy: 0.4075
+Average F1-Score: 0.3903
+Average Recall: 0.4075
+Average Precision: 0.4120
+
+Camadas removidas: 23
+Average Accuracy: 0.4075
+Average F1-Score: 0.3903
+Average Recall: 0.4075
+Average Precision: 0.4120
+
