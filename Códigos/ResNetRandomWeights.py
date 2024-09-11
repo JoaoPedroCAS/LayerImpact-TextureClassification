@@ -13,8 +13,6 @@ import random
 import time
 
 # Define the path to your dataset
-dataset_path = 'C:/Users/jpedr/OneDrive/Documentos/IFSC/Texturas'
-
 # Load ResNet50 model and remove the classification layer
 class ResNet50FeatureExtractor(nn.Module):
     def __init__(self):
@@ -135,6 +133,20 @@ def load_images_from_folder(folder):
     return images, labels
 
 # Load dataset
+
+enviroment = int(input("Qual ambiente está sendo utilizado?\n1 - windows \n 2 - Linux"))
+if enviroment == 1:
+    dataset_path = 'C:/Users/jpedr/OneDrive/Documentos/IFSC/Texturas'
+    save_results = 'C:/Users/jpedr/OneDrive/Documentos/IFSC/ResNet50Weights'
+else:
+    dataset_path = '/home/jpcadesa/Projetos/LayerImpact-TextureClassification/Texturas'
+    save_results = '/home/jpcadesa/Projetos/LayerImpact-TextureClassification/ResNet50Weights'
+
+if not dataset_path.exists():
+    dataset_path.mkdir(parents=True, exist_ok=True)
+if not save_results.exists():
+    save_results.mkdir(parents=True, exist_ok=True)
+
 images, labels = load_images_from_folder(dataset_path)
 print("Imagens carregadas!")
 
@@ -148,7 +160,7 @@ print("Dispositivo selecionado!")
 for i in range(0, 100):
     model = ResNet50FeatureExtractor().to(device)
     print(f"Modelo {i} criado")
-    model.save_weights_as_png(filename = f"C:\\Users\\jpedr\\OneDrive\\Documentos\\IFSC\\ResNet50RandWeights\\{i}_weights_per_layer.png")
+    model.save_weights_as_png(filename = f"{save_results}/{i}_weights_per_layer.png")
     print(f"Distribuição {i} de pesos salva!")
     blocks = model.number_of_blocks()
     layers_removed = 0
@@ -179,7 +191,7 @@ for i in range(0, 100):
         precision_scores = []
         print("Inicializando o LDA com CV")
         # File to save metrics
-        with open(f'C:\\Users\\jpedr\\OneDrive\\Documentos\\IFSC\\ResNet50RandWeights\\{i}_metrics.txt', 'a') as f:  # Change 'w' to 'a' to append to the file
+        with open(f'{save_results}/{i}_metrics.txt', 'a') as f:  # Change 'w' to 'a' to append to the file
             for train_index, test_index in cv.split(features, labels):
                 X_train, X_test = features[train_index], features[test_index]
                 y_train, y_test = labels[train_index], labels[test_index]
@@ -244,6 +256,6 @@ for i in range(0, 100):
             ax.set_xlabel('Camadas Removidas')
 
     # Ajusta o layout para que os subplots não se sobreponham
-    plt.savefig(f"C:\\Users\\jpedr\\OneDrive\\Documentos\\IFSC\\ResNet50RandWeights\\{i}_GraficoMetricas.png")
+    plt.savefig(f"{save_results}/{i}_GraficoMetricas.png")
     plt.close()  # Close the plot to avoid displaying it
     print(f"Gráfico de métricas {i} salvo!")
