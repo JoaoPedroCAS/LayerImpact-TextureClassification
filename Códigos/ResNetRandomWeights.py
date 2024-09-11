@@ -7,7 +7,7 @@ from sklearn.model_selection import RepeatedStratifiedKFold
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
-from torchvision.models import resnet50, ResNet50_Weights
+from torchvision.models import resnet50
 import matplotlib.pyplot as plt
 import random
 import time
@@ -89,24 +89,30 @@ class ResNet50FeatureExtractor(nn.Module):
     
     def remove_blocks(self):
         if self.number_of_blocks() > 0:
-            blocks = list(self.features[-1][-1].children())
+            blocks = list(self.features[-1].children())
             blocks.pop()
-            self.features[-1][-1] = nn.Sequential(*blocks)
+            self.features[-1] = torch.nn.Sequential(*blocks)
+            #print(self.features)
 
     def number_of_blocks(self):
+        try:
+            len(list(self.features[-1].children()))
+        except IndexError:
+            return 0
+    
         if len(list(self.features[-1].children())) > 0:
-            return len(list(self.features[-1][-1]))
+            return len(list(self.features[-1].children()))
         else:
             return 0
     
     def number_of_sequentials(self):
-        return len(list(self.features[-1]))
+        return len(list(self.features))
     
     def remover_sequential(self):
         if self.number_of_sequentials() > 0:
-            sequential = list(self.features[-1].children())
+            sequential = list(self.features.children())
             sequential.pop()
-            self.features[-1] = torch.nn.Sequential(*sequential)
+            self.features = torch.nn.Sequential(*sequential)
 
 # Define transformations for image preprocessing
 transform = transforms.Compose([
