@@ -12,105 +12,114 @@ import matplotlib.pyplot as plt
 import random
 import time
 
+# Define the path to your dataset
+dataset_path = 'C:/Users/jpedr/OneDrive/Documentos/IFSC/Texturas'
+
 # Load ResNet50 model and remove the classification layer
 class ResNet50FeatureExtractor(nn.Module):
     def __init__(self):
         super(ResNet50FeatureExtractor, self).__init__()
         self.model = resnet50(weights=None)
-        # Remove the fully connected layer
         self.features = nn.Sequential(*list(self.model.children())[:-2])  # Remove classification layer
         self.initialize_weights_more_randomly()
 
-    def _get_random_limits(self, a_std_range=(-5.0, 5.0), b_std_range=(-5.0, 5.0)):
-        """Gera limites aleatórios para a inicialização uniforme."""
-        a = random.uniform(*a_std_range)
-        b = random.uniform(*b_std_range)
-        return min(a, b), max(a, b)
-
-    def initialize_weights_more_randomly(self, noise_std_range=(0.1, 0.5)):
-        """Inicializa pesos e vieses com valores aleatórios e ruído."""
-        random.seed(42)  # Use um valor fixo ou configure conforme necessário
-        for module in self.model.modules():
-            if isinstance(module, (nn.Conv2d, nn.Linear)):
-                a, b = self._get_random_limits()
-                nn.init.uniform_(module.weight, a=a, b=b)
-                if module.bias is not None:
-                    a, b = self._get_random_limits()
-                    nn.init.uniform_(module.bias, a=a, b=b)
-                with torch.no_grad():
-                    noise_std = random.uniform(*noise_std_range)
-                    module.weight.add_(torch.randn_like(module.weight) * noise_std)
-                    if module.bias is not None:
-                        module.bias.add_(torch.randn_like(module.bias) * noise_std)
-            elif isinstance(module, nn.BatchNorm2d):
-                a, b = self._get_random_limits()
-                nn.init.uniform_(module.weight, a=a, b=b)
-                nn.init.uniform_(module.bias, a=a, b=b)
-        print("Pesos aleatórios atribuídos!")
-
     def save_weights_as_png(self, filename):
-        """Salva a distribuição de pesos das camadas em um arquivo PNG."""
-        layers, weights = [], []
+        layers = []
+        weights = []
+
+        # Collect weights from each layer
         for name, param in self.model.named_parameters():
-            if 'weight' in name and param.dim() > 1:
+            if 'weight' in name and param.dim() > 1:  # Only collect weights, not biases or batchnorm scalars
                 layers.append(name)
                 weights.append(param.detach().cpu().numpy().flatten())
+
+        # Plot each layer's weights on the same figure
         plt.figure(figsize=(10, 6))
+        
         for i, layer_weights in enumerate(weights):
             plt.scatter([i] * len(layer_weights), layer_weights, s=1, label=layers[i])
+
         plt.title("Weights Across Layers")
         plt.xlabel("Layer Index")
         plt.ylabel("Weight Values")
         plt.xticks(ticks=np.arange(len(layers)), labels=layers, rotation=90)
         plt.tight_layout()
+
+        # Save the plot as a PNG file
         plt.savefig(filename)
-        plt.close()
-    
+        plt.close()  # Close the plot to avoid displaying it
+
+    def initialize_weights_more_randomly(self, noise_std_range=(0.1, 0.5)):
+        a_std_range = (-5.0, 5.0)
+        b_std_range = (-5.0, 5.0)
+        random.seed(int(time.time()))
+        
+        for module in self.model.modules():
+            if isinstance(module, (nn.Conv2d, nn.Linear)):
+                # Ensure a <= b for uniform initialization
+                a = random.uniform(*a_std_range)
+                b = random.uniform(*b_std_range)
+                a, b = min(a, b), max(a, b)
+                
+                # Use Uniform distribution for weights
+                nn.init.uniform_(module.weight, a=a, b=b)  # Wider range of weights
+                if module.bias is not None:
+                    a = random.uniform(*a_std_range)
+                    b = random.uniform(*b_std_range)
+                    a, b = min(a, b), max(a, b)
+                    nn.init.uniform_(module.bias, a=a, b=b)
+                
+                # Optionally, add noise to the weights to increase randomness
+                with torch.no_grad():
+                    module.weight.add_(torch.randn_like(module.weight) * random.uniform(*noise_std_range))
+                    if module.bias is not None:
+                        module.bias.add_(torch.randn_like(module.bias) * random.uniform(*noise_std_range))
+            elif isinstance(module, nn.BatchNorm2d):
+                a = random.uniform(*a_std_range)
+                b = random.uniform(*b_std_range)
+                a, b = min(a, b), max(a, b)
+                nn.init.uniform_(module.weight, a=a, b=b)  # Slight randomness in BatchNorm
+                a = random.uniform(*a_std_range)
+                b = random.uniform(*b_std_range)
+                a, b = min(a, b), max(a, b)
+                nn.init.uniform_(module.bias, a=a, b=b)
+        print("Pesos aleatórios atribuidos!")
+
     def forward(self, x):
         return self.features(x)
-
+    
     def remove_blocks(self):
-        """Remove blocos da última camada."""
         if self.number_of_blocks() > 0:
             blocks = list(self.features[-1][-1].children())
-            if blocks:
-                blocks.pop()
-                self.features[-1][-1] = nn.Sequential(*blocks)
+            blocks.pop()
+            self.features[-1][-1] = nn.Sequential(*blocks)
 
     def number_of_blocks(self):
-        """Retorna o número de blocos na última camada."""
-        last_layer = self.features[-1]
-        if isinstance(last_layer, nn.Sequential) and len(list(last_layer.children())) > 0:
-            return len(list(last_layer[-1].children()))
-        return 0
+        if len(list(self.features[-1].children())) > 0:
+            return len(list(self.features[-1][-1]))
+        else:
+            return 0
     
     def number_of_sequentials(self):
-        """Retorna o número de módulos nn.Sequential na última camada."""
         return len(list(self.features[-1]))
     
-    def remove_sequential(self):
-        """Remove o último módulo nn.Sequential da última camada."""
+    def remover_sequential(self):
         if self.number_of_sequentials() > 0:
             sequential = list(self.features[-1].children())
-            if sequential:
-                sequential.pop()
-                self.features[-1] = nn.Sequential(*sequential)
+            sequential.pop()
+            self.features[-1] = torch.nn.Sequential(*sequential)
 
-def get_dataset_paths(env):
-    """Retorna os caminhos do dataset e de salvamento baseados no ambiente."""
-    if env == 1:
-        return 'C:/Users/jpedr/OneDrive/Documentos/IFSC/Texturas', 'C:/Users/jpedr/OneDrive/Documentos/IFSC/ConvNextTinyRandWeights'
-    return '~/Projetos/LayerImpact-TextureClassification/Texturas', '~/Projetos/LayerImpact-TextureClassification/ConvNextTinyRandWeights'
+# Define transformations for image preprocessing
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
+print("Transform criado!")
 
-def ensure_directories(paths):
-    """Garante que os diretórios existem."""
-    for path in paths:
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-def load_images_from_folder(folder, transform):
-    """Carrega e transforma imagens de um diretório."""
-    images, labels = [], []
+def load_images_from_folder(folder):
+    images = []
+    labels = []
     for label, subfolder in enumerate(os.listdir(folder)):
         subfolder_path = os.path.join(folder, subfolder)
         if os.path.isdir(subfolder_path):
@@ -125,100 +134,93 @@ def load_images_from_folder(folder, transform):
                     print(f"Error loading image {img_path}: {e}")
     return images, labels
 
-# Define transformations for image preprocessing
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-])
-print("Transform criado!")
-
-# Determine environment and paths
-env = int(input("Qual ambiente você está utilizando? (1 - Windows / 2 - Linux)"))
-dataset_path, save_results = get_dataset_paths(env)
-ensure_directories([dataset_path, save_results])
-
 # Load dataset
-images, labels = load_images_from_folder(dataset_path, transform)
+images, labels = load_images_from_folder(dataset_path)
 print("Imagens carregadas!")
 
 # Convert list of tensors to a single tensor
 images_tensor = torch.stack(images)
 print("Image tensor criado!")
 
-def evaluate_model(model, images_tensor, labels, device, save_results, iteration):
-    """Avalia o modelo e salva as métricas em um arquivo."""
-    model.eval()
-    features = []
-    with torch.no_grad():
-        for img in images_tensor:
-            img = img.unsqueeze(0).to(device)
-            feature = model(img).cpu().numpy()
-            features.append(feature.flatten())
-    
-    features = np.array(features)
-    labels = np.array(labels)
-    print("Features extraídas")
-
-    lda = LinearDiscriminantAnalysis()
-    cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=2, random_state=42)
-    accuracy_scores, f1_scores, recall_scores, precision_scores = [], [], [], []
-
-    with open(f'{save_results}/{iteration}_metrics.txt', 'a') as f:
-        for train_index, test_index in cv.split(features, labels):
-            X_train, X_test = features[train_index], features[test_index]
-            y_train, y_test = labels[train_index], labels[test_index]
-            print("Treino e teste separados!")
-
-            lda.fit(X_train, y_train)
-            print("Fit do LDA realizado!")
-
-            y_pred = lda.predict(X_test)
-            report = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
-
-            accuracy_scores.append(accuracy_score(y_test, y_pred))
-            f1_scores.append(np.mean([report.get(str(i), {}).get('f1-score', 0) for i in range(len(np.unique(labels)))]))
-            recall_scores.append(np.mean([report.get(str(i), {}).get('recall', 0) for i in range(len(np.unique(labels)))]))
-            precision_scores.append(np.mean([report.get(str(i), {}).get('precision', 0) for i in range(len(np.unique(labels)))]))
-        
-        print("Salvando as métricas!")
-        f.write(f"Camadas removidas: {iteration}\n")
-        f.write(f"Average Accuracy: {np.mean(accuracy_scores):.4f}\n")
-        f.write(f"Average F1-Score: {np.mean(f1_scores):.4f}\n")
-        f.write(f"Average Recall: {np.mean(recall_scores):.4f}\n")
-        f.write(f"Average Precision: {np.mean(precision_scores):.4f}\n")
-        f.write("\n")
-
-    return np.mean(accuracy_scores), np.mean(f1_scores), np.mean(recall_scores), np.mean(precision_scores)
-
-# Loop principal
+# Extract features using ResNet50
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("Dispositivo selecionado!")
-
-for i in range(100):
+for i in range(0, 100):
     model = ResNet50FeatureExtractor().to(device)
     print(f"Modelo {i} criado")
-    model.save_weights_as_png(filename=f"{save_results}/{i}_weights_per_layer.png")
+    model.save_weights_as_png(filename = f"C:\\Users\\jpedr\\OneDrive\\Documentos\\IFSC\\ResNet50RandWeights\\{i}_weights_per_layer.png")
     print(f"Distribuição {i} de pesos salva!")
-
-    mean_accuracy_scores, mean_f1_scores, mean_recall_scores, mean_precision_scores = [], [], [], []
     blocks = model.number_of_blocks()
     layers_removed = 0
+    mean_accuracy_scores = []
+    mean_f1_scores = []
+    mean_recall_scores = []
+    mean_precision_scores = []
     print("Iniciando remoção de blocos!")
-
     while blocks > 0 or model.number_of_sequentials() > 0:
-        acc, f1, recall, precision = evaluate_model(model, images_tensor, labels, device, save_results, i)
-        mean_accuracy_scores.append(acc)
-        mean_f1_scores.append(f1)
-        mean_recall_scores.append(recall)
-        mean_precision_scores.append(precision)
+        model.eval()
+        features = []
+        with torch.no_grad():
+            for j in range(len(images_tensor)):
+                img = images_tensor[j].unsqueeze(0).to(device)
+                feature = model(img).cpu().numpy()
+                features.append(feature.flatten())
+
+        features = np.array(features)
+        labels = np.array(labels)
+        print("Features extraidas")
+
+        # Perform LDA and cross-validation
+        lda = LinearDiscriminantAnalysis()
+        cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=2, random_state=42)
+        accuracy_scores = []
+        f1_scores = []
+        recall_scores = []
+        precision_scores = []
+        print("Inicializando o LDA com CV")
+        # File to save metrics
+        with open(f'C:\\Users\\jpedr\\OneDrive\\Documentos\\IFSC\\ResNet50RandWeights\\{i}_metrics.txt', 'a') as f:  # Change 'w' to 'a' to append to the file
+            for train_index, test_index in cv.split(features, labels):
+                X_train, X_test = features[train_index], features[test_index]
+                y_train, y_test = labels[train_index], labels[test_index]
+                print("Treino e teste separado!")
+
+                # Fit the model
+                lda.fit(X_train, y_train)
+                print("Fit do LDA realizado!")
+
+                # Predict and evaluate the model
+                y_pred = lda.predict(X_test)
+                report = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
+
+                accuracy = accuracy_score(y_test, y_pred)
+                f1 = np.mean([report[str(i)]['f1-score'] for i in range(len(np.unique(labels))) if str(i) in report])
+                recall = np.mean([report[str(i)]['recall'] for i in range(len(np.unique(labels))) if str(i) in report])
+                precision = np.mean([report[str(i)]['precision'] for i in range(len(np.unique(labels))) if str(i) in report])
+
+                accuracy_scores.append(accuracy)
+                f1_scores.append(f1)
+                recall_scores.append(recall)
+                precision_scores.append(precision)
+            print("Salvando as métricas!")
+            # Write average metrics
+            f.write(f"Camadas removidas: {layers_removed}\n")
+            f.write(f"Average Accuracy: {np.mean(accuracy_scores):.4f}\n")
+            f.write(f"Average F1-Score: {np.mean(f1_scores):.4f}\n")
+            f.write(f"Average Recall: {np.mean(recall_scores):.4f}\n")
+            f.write(f"Average Precision: {np.mean(precision_scores):.4f}\n")
+            f.write("\n")
+            mean_accuracy_scores.append(np.mean(accuracy_scores))
+            mean_f1_scores.append(np.mean(f1_scores))
+            mean_recall_scores.append(np.mean(recall_scores))
+            mean_precision_scores.append(np.mean(precision_scores))
 
         layers_removed += 1
         model.remove_blocks()
         blocks = model.number_of_blocks()
         if blocks == 0 and model.number_of_sequentials() > 0:
             print(f"Removendo o {model.number_of_sequentials()} Sequential\n")
-            model.remove_sequential()
+            model.remover_sequential()
             blocks = model.number_of_blocks()
             if model.number_of_sequentials() == 0 and blocks == 0:
                 break
@@ -228,17 +230,20 @@ for i in range(100):
     metrics = ['Accuracy', 'F1-Score', 'Recall', 'Precision']
     scores = [mean_accuracy_scores[::-1], mean_f1_scores[::-1], mean_recall_scores[::-1], mean_precision_scores[::-1]]
 
-    fig, axs = plt.subplots(len(metrics), 1, figsize=(10, 8), sharex=True)
+    num_metrics = len(metrics)
+
+    fig, axs = plt.subplots(num_metrics, 1, figsize=(10, 8), sharex=True)
+
     for k, (ax, metric, score) in enumerate(zip(axs, metrics, scores)):
         ax.plot(score, marker='o', linestyle='-', label=metric)
         ax.set_title(metric)
         ax.set_ylim(0, 1)
         ax.set_ylabel('Métricas')
         ax.grid(True)
-        if k == len(metrics) - 1:
+        if k == num_metrics - 1: 
             ax.set_xlabel('Camadas Removidas')
 
-    plt.tight_layout()
-    plt.savefig(f"{save_results}/{i}_GraficoMetricas.png")
-    plt.close()
+    # Ajusta o layout para que os subplots não se sobreponham
+    plt.savefig(f"C:\\Users\\jpedr\\OneDrive\\Documentos\\IFSC\\ResNet50RandWeights\\{i}_GraficoMetricas.png")
+    plt.close()  # Close the plot to avoid displaying it
     print(f"Gráfico de métricas {i} salvo!")
