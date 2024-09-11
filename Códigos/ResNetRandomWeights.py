@@ -11,6 +11,7 @@ from torchvision.models import resnet50, ResNet50_Weights
 import matplotlib.pyplot as plt
 import random
 import time
+from pathlib import Path
 
 # Define the path to your dataset
 # Load ResNet50 model and remove the classification layer
@@ -134,13 +135,13 @@ def load_images_from_folder(folder):
 
 # Load dataset
 
-enviroment = int(input("Qual ambiente está sendo utilizado?\n1 - windows \n 2 - Linux"))
+enviroment = int(input("Qual ambiente está sendo utilizado? (1 - Windows | 2 - Linux): "))
 if enviroment == 1:
-    dataset_path = 'C:/Users/jpedr/OneDrive/Documentos/IFSC/Texturas'
-    save_results = 'C:/Users/jpedr/OneDrive/Documentos/IFSC/ResNet50Weights'
+    dataset_path = Path('C:/Users/jpedr/OneDrive/Documentos/IFSC/Texturas')
+    save_results = Path('C:/Users/jpedr/OneDrive/Documentos/IFSC/ResNet50Weights')
 else:
-    dataset_path = '/home/jpcadesa/Projetos/LayerImpact-TextureClassification/Texturas'
-    save_results = '/home/jpcadesa/Projetos/LayerImpact-TextureClassification/ResNet50Weights'
+    dataset_path = Path('/home/jpcadesa/Projetos/LayerImpact-TextureClassification/Texturas')
+    save_results = Path('/home/jpcadesa/Projetos/LayerImpact-TextureClassification/ResNet50Weights')
 
 if not dataset_path.exists():
     dataset_path.mkdir(parents=True, exist_ok=True)
