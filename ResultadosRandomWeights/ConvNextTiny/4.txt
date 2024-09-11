@@ -1,0 +1,156 @@
+Camadas removidas: 0
+Average Accuracy: 0.3221
+Average F1-Score: 0.3046
+Average Recall: 0.3221
+Average Precision: 0.3324
+
+Camadas removidas: 1
+Average Accuracy: 0.3221
+Average F1-Score: 0.3046
+Average Recall: 0.3221
+Average Precision: 0.3324
+
+Camadas removidas: 2
+Average Accuracy: 0.3221
+Average F1-Score: 0.3046
+Average Recall: 0.3221
+Average Precision: 0.3324
+
+Camadas removidas: 3
+Average Accuracy: 0.3221
+Average F1-Score: 0.3046
+Average Recall: 0.3221
+Average Precision: 0.3324
+
+Camadas removidas: 4
+Average Accuracy: 0.3300
+Average F1-Score: 0.3102
+Average Recall: 0.3300
+Average Precision: 0.3359
+
+Camadas removidas: 5
+Average Accuracy: 0.3312
+Average F1-Score: 0.3127
+Average Recall: 0.3312
+Average Precision: 0.3368
+
+Camadas removidas: 6
+Average Accuracy: 0.3312
+Average F1-Score: 0.3127
+Average Recall: 0.3312
+Average Precision: 0.3368
+
+Camadas removidas: 7
+Average Accuracy: 0.3312
+Average F1-Score: 0.3127
+Average Recall: 0.3312
+Average Precision: 0.3368
+
+Camadas removidas: 8
+Average Accuracy: 0.3312
+Average F1-Score: 0.3127
+Average Recall: 0.3312
+Average Precision: 0.3368
+
+Camadas removidas: 9
+Average Accuracy: 0.3312
+Average F1-Score: 0.3127
+Average Recall: 0.3312
+Average Precision: 0.3368
+
+Camadas removidas: 10
+Average Accuracy: 0.3312
+Average F1-Score: 0.3127
+Average Recall: 0.3312
+Average Precision: 0.3368
+
+Camadas removidas: 11
+Average Accuracy: 0.3312
+Average F1-Score: 0.3127
+Average Recall: 0.3312
+Average Precision: 0.3368
+
+Camadas removidas: 12
+Average Accuracy: 0.3312
+Average F1-Score: 0.3127
+Average Recall: 0.3312
+Average Precision: 0.3368
+
+Camadas removidas: 13
+Average Accuracy: 0.3312
+Average F1-Score: 0.3127
+Average Recall: 0.3312
+Average Precision: 0.3368
+
+Camadas removidas: 14
+Average Accuracy: 0.3312
+Average F1-Score: 0.3127
+Average Recall: 0.3312
+Average Precision: 0.3368
+
+Camadas removidas: 15
+Average Accuracy: 0.3471
+Average F1-Score: 0.3267
+Average Recall: 0.3471
+Average Precision: 0.3510
+
+Camadas removidas: 16
+Average Accuracy: 0.3475
+Average F1-Score: 0.3271
+Average Recall: 0.3475
+Average Precision: 0.3522
+
+Camadas removidas: 17
+Average Accuracy: 0.3475
+Average F1-Score: 0.3271
+Average Recall: 0.3475
+Average Precision: 0.3522
+
+Camadas removidas: 18
+Average Accuracy: 0.3475
+Average F1-Score: 0.3271
+Average Recall: 0.3475
+Average Precision: 0.3522
+
+Camadas removidas: 19
+Average Accuracy: 0.3475
+Average F1-Score: 0.3271
+Average Recall: 0.3475
+Average Precision: 0.3522
+
+Camadas removidas: 20
+Average Accuracy: 0.3350
+Average F1-Score: 0.3161
+Average Recall: 0.3350
+Average Precision: 0.3385
+
+Camadas removidas: 21
+Average Accuracy: 0.3350
+Average F1-Score: 0.3161
+Average Recall: 0.3350
+Average Precision: 0.3385
+
+Camadas removidas: 22
+Average Accuracy: 0.3350
+Average F1-Score: 0.3161
+Average Recall: 0.3350
+Average Precision: 0.3385
+
+Camadas removidas: 23
+Average Accuracy: 0.3350
+Average F1-Score: 0.3161
+Average Recall: 0.3350
+Average Precision: 0.3385
+
+Camadas removidas: 24
+Average Accuracy: 0.3350
+Average F1-Score: 0.3161
+Average Recall: 0.3350
+Average Precision: 0.3385
+
+Camadas removidas: 25
+Average Accuracy: 0.3729
+Average F1-Score: 0.3429
+Average Recall: 0.3729
+Average Precision: 0.3623
+
