@@ -120,7 +120,6 @@ transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
 ])
-print("Transform criado!")
 
 def load_images_from_folder(folder):
     images = []
@@ -140,7 +139,6 @@ def load_images_from_folder(folder):
     return images, labels
 
 # Load dataset
-
 enviroment = int(input("Qual ambiente está sendo utilizado? (1 - Windows | 2 - Linux): "))
 if enviroment == 1:
     dataset_path = Path('C:/Users/jpedr/OneDrive/Documentos/IFSC/Texturas')
@@ -164,11 +162,13 @@ print("Image tensor criado!")
 # Extract features using ResNet50
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("Dispositivo selecionado!")
-for i in range(0, 100):
+
+for i in range(100):
     model = ResNet50FeatureExtractor().to(device)
     print(f"Modelo {i} criado")
-    model.save_weights_as_png(filename = f"{save_results}/{i}_weights_per_layer.png")
+    model.save_weights_as_png(filename=f"{save_results}/{i}_weights_per_layer.png")
     print(f"Distribuição {i} de pesos salva!")
+
     blocks = model.number_of_blocks()
     layers_removed = 0
     mean_accuracy_scores = []
@@ -176,18 +176,31 @@ for i in range(0, 100):
     mean_recall_scores = []
     mean_precision_scores = []
     print("Iniciando remoção de blocos!")
+
     while blocks > 0 or model.number_of_sequentials() > 0:
         model.eval()
         features = []
+        valid_labels = []
+
         with torch.no_grad():
             for j in range(len(images_tensor)):
                 img = images_tensor[j].unsqueeze(0).to(device)
-                feature = model(img).cpu().numpy()
-                features.append(feature.flatten())
-
+                feature = model(img).cpu().numpy().flatten()
+                
+                # Filtering out NaN and infinite values
+                if not np.any(np.isnan(feature)) and not np.any(np.isinf(feature)):
+                    features.append(feature)
+                    valid_labels.append(labels[j])
+        
         features = np.array(features)
-        labels = np.array(labels)
-        print("Features extraidas")
+        labels = np.array(valid_labels)
+        
+        # Data integrity check
+        if len(features) == 0 or len(labels) == 0:
+            print("No valid data available after filtering. Skipping this iteration.")
+            break
+
+        print("Features extraídas")
 
         # Perform LDA and cross-validation
         lda = LinearDiscriminantAnalysis()
@@ -197,12 +210,13 @@ for i in range(0, 100):
         recall_scores = []
         precision_scores = []
         print("Inicializando o LDA com CV")
+
         # File to save metrics
         with open(f'{save_results}/{i}_metrics.txt', 'a') as f:  # Change 'w' to 'a' to append to the file
             for train_index, test_index in cv.split(features, labels):
                 X_train, X_test = features[train_index], features[test_index]
                 y_train, y_test = labels[train_index], labels[test_index]
-                print("Treino e teste separado!")
+                print("Treino e teste separados!")
 
                 # Fit the model
                 lda.fit(X_train, y_train)
@@ -259,10 +273,9 @@ for i in range(0, 100):
         ax.set_ylim(0, 1)
         ax.set_ylabel('Métricas')
         ax.grid(True)
-        if k == num_metrics - 1: 
+        if k == num_metrics - 1:
             ax.set_xlabel('Camadas Removidas')
 
-    # Ajusta o layout para que os subplots não se sobreponham
     plt.savefig(f"{save_results}/{i}_GraficoMetricas.png")
     plt.close()  # Close the plot to avoid displaying it
     print(f"Gráfico de métricas {i} salvo!")
