@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import random
 import time
 # Define the path to your dataset
-dataset_path = '~/Projetos/Texturas'
+dataset_path = '~/Projetos/LayerImpact-TextureClassification/Texturas'
 
 # Load ConvNeXt-Tiny model and remove the classification layer
 class ConvNeXtTinyFeatureExtractor(nn.Module):
@@ -140,7 +140,7 @@ for i in range(0, 100):
     num_layers = model.number_of_layers()
     camadas_removidas = 0
     print(f"Modelo {i} criado")
-    model.save_weights_as_png(filename = f"~\\Projetos\\ResNet50dWeights\\{i}_weights_per_layer.png")
+    model.save_weights_as_png(filename = f"~\\Projetos\\LayerImpact-TextureClassification\\ResNet50dWeights\\{i}_weights_per_layer.png")
     print(f"Distribuição {i} de pesos salva!")
     mean_accuracy_scores = []
     mean_f1_scores = []
@@ -169,7 +169,7 @@ for i in range(0, 100):
         precision_scores = []
         print("Inicializando o LDA com CV")
         # File to save metrics
-        with open(f'~\\Projetos\\ResNet50dWeights\\{i}_metrics.txt', 'a') as f:  # Change 'w' to 'a' to append to the file
+        with open(f'~\\Projetos\\LayerImpact-TextureClassification\\ResNet50dWeights\\{i}_metrics.txt', 'a') as f:  # Change 'w' to 'a' to append to the file
             for train_index, test_index in cv.split(features, labels):
                 X_train, X_test = features[train_index], features[test_index]
                 y_train, y_test = labels[train_index], labels[test_index]
@@ -228,6 +228,6 @@ for i in range(0, 100):
             ax.set_xlabel('Camadas Removidas')
 
     # Ajusta o layout para que os subplots não se sobreponham
-    plt.savefig(f"~\\Projetos\\ResNet50dWeights\\{i}_GraficoMetricas.png")
+    plt.savefig(f"~\\Projetos\\LayerImpact-TextureClassification\\ResNet50dWeights\\{i}_GraficoMetricas.png")
     plt.close()  # Close the plot to avoid displaying it
     print("Gráfico de métricas {i} salvo!")
